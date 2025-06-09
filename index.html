@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Sliding Window Tic-Tac-Toe</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      text-align: center;
+      background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+      color: #fff;
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+    }
+
+    h1 {
+      margin-top: 40px;
+      font-size: 2.5rem;
+      color: #00ffcc;
+      text-shadow: 0 0 10px #00ffcc;
+    }
+
+    #game {
+      display: grid;
+      grid-template-columns: repeat(3, 90px);
+      gap: 10px;
+      margin: 30px auto;
+    }
+
+    .cell {
+      width: 90px;
+      height: 90px;
+      font-size: 2.5rem;
+      background-color: #1e1e2f;
+      border: 2px solid #00ffcc;
+      border-radius: 10px;
+      color: #fff;
+      box-shadow: 0 0 10px #00ffcc66;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .cell:hover {
+      background-color: #2e2e40;
+    }
+
+    #status {
+      margin-top: 10px;
+      font-size: 1.4rem;
+      color: #ffcc00;
+      text-shadow: 0 0 5px #ffcc00aa;
+    }
+
+    button {
+      margin-top: 25px;
+      padding: 12px 30px;
+      font-size: 1.1rem;
+      border: none;
+      border-radius: 25px;
+      background: #ff00cc;
+      color: white;
+      cursor: pointer;
+      box-shadow: 0 0 15px #ff00cc99;
+      transition: all 0.3s ease;
+    }
+
+    button:hover {
+      background: #ff33dd;
+      transform: scale(1.05);
+    }
+  </style>
+</head>
+
+<body>
+  <h1>Sliding Window Tic-Tac-Toe</h1>
+  <div id="game"></div>
+  <div id="status">Player X's turn</div>
+  <button id="reset">Reset</button>
+
+  <script>
+    const game = document.getElementById('game');
+    const statusText = document.getElementById('status');
+    const resetBtn = document.getElementById('reset');
+  
+    let board = Array(9).fill('');
+    let currentPlayer = 'X';
+    let moveQueue = [];
+    const MAX_MOVES = 5;
+    let gameActive = true;
+  
+    // Load sound effects
+    const xSound = new Audio('x-click.mp3');
+    const oSound = new Audio('o-click.mp3');
+    const winSound = new Audio('win.mp3');
+  
+    // Create grid
+    for (let i = 0; i < 9; i++) {
+      const cell = document.createElement('div');
+      cell.classList.add('cell');
+      cell.dataset.index = i;
+      game.appendChild(cell);
+    }
+  
+    game.addEventListener('click', (e) => {
+      if (!gameActive) return;
+  
+      const index = e.target.dataset.index;
+      if (!index || board[index] !== '') return;
+  
+      board[index] = currentPlayer;
+      moveQueue.push({ index: index, player: currentPlayer });
+  
+      // Play sound for move
+      if (currentPlayer === 'X') {
+        xSound.currentTime = 0; // rewind if playing
+        xSound.play();
+      } else {
+        oSound.currentTime = 0;
+        oSound.play();
+      }
+  
+      // Remove oldest move if exceeding MAX_MOVES
+      if (moveQueue.length > MAX_MOVES) {
+        const old = moveQueue.shift();
+        board[old.index] = '';
+      }
+  
+      updateBoard();
+  
+      if (checkWin(currentPlayer)) {
+        winSound.play();
+        statusText.textContent = `🎉 Player ${currentPlayer} wins!`;
+        gameActive = false;
+      } else {
+        currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+        statusText.textContent = `Player ${currentPlayer}'s turn`;
+      }
+    });
+  
+    resetBtn.addEventListener('click', () => {
+      board = Array(9).fill('');
+      moveQueue = [];
+      currentPlayer = 'X';
+      gameActive = true;
+      statusText.textContent = `Player ${currentPlayer}'s turn`;
+      updateBoard();
+    });
+  
+    function updateBoard() {
+      const cells = document.querySelectorAll('.cell');
+      cells.forEach((cell, idx) => {
+        cell.textContent = board[idx];
+      });
+    }
+  
+    function checkWin(player) {
+      const winPatterns = [
+        [0,1,2],[3,4,5],[6,7,8],
+        [0,3,6],[1,4,7],[2,5,8],
+        [0,4,8],[2,4,6]
+      ];
+      return winPatterns.some(pattern =>
+        pattern.every(index => board[index] === player)
+      );
+    }
+  </script>
+  
+</body>
+</html>
