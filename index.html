@@ -199,8 +199,8 @@
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
   import { getFirestore, doc, getDoc, updateDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
+  import { firebaseConfig } from "./firebase-config.js"; // 👈 import your config
 
-  
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
 
@@ -218,6 +218,7 @@
 
   incrementVisit();
 </script>
+
 
 
 </body>
